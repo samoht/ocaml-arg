@@ -30,15 +30,14 @@ module StringMap = Map.Make(String)
 
 let all = ref StringMap.empty
 
-let failwithf fmt =
-  Printf.kprintf (fun str -> failwith str) fmt
+let bad fmt =
+  Printf.kprintf (fun str -> raise (Arg.Bad str)) fmt
 
 let make ~name ~synopsis ?(help="") ?(usage="") main =
   { name; synopsis; help; usage
   ; specs = []
-  ; anon = (failwithf "Don't know what to do with %S")
-  ; main
-  }
+  ; anon = bad "%S: invalid argument"
+  ; main }
 
 and register ({ name; _ } as t) =
   all := StringMap.add name t !all
@@ -47,8 +46,7 @@ and find name =
   try
     StringMap.find name !all
   with Not_found ->
-    failwithf "Subcommand %S doesn't exist" name
+    bad "subcommand %S does not exist" name
 
 and fold ~f ~init =
   StringMap.fold f !all init
-
