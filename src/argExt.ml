@@ -30,17 +30,19 @@ type help_extent =
   | SubCommand of string
   | AllSubCommands
 
+let progname = Filename.basename Sys.argv.(0)
+
 let usage_msg =
   Printf.sprintf
     "%s [global-options*] subcommand [subcommand-options*]"
-    Sys.argv.(0)
+    progname
 
 (* Pretty printers. *)
 
 let pp_print_specs fmt specs =
   let help_specs = List.rev_append
     (List.rev_map ~f:(fun (name, _, help) -> (name, help)) specs)
-    ["--help", "Display this list of options"]
+    ["--help", " Display this list of options"]
   in
 
   let size = List.fold_left
@@ -59,7 +61,7 @@ let pp_print_cmd fmt { name; help; usage; specs; _ } =
   pp_print_string fmt help;
   pp_print_endblock fmt ();
 
-  fprintf fmt ("Usage: %s [global-options*] %s %s") Sys.argv.(0) name usage;
+  fprintf fmt ("Usage: %s [global-options*] %s %s") progname name usage;
   pp_print_endblock fmt ();
 
   match specs with
@@ -150,8 +152,7 @@ let parse specs =
   let cmd = ref (SubCommand.make
     ~name:"none"
     ~synopsis:""
-    (fun () ->
-      Printf.eprintf "No subcommand defined, call '%s --help' for help" Sys.argv.(0)))
+    (fun () -> failwith "no subcommand defined"))
   and cmd_args = ref [||] in
 
   let set_cmd s =
@@ -183,7 +184,7 @@ let parse specs =
       Arg.parse_argv
         ~current:pos
         Sys.argv
-        specs
+        (Arg.align specs)
         set_cmd
         usage_msg
     with exc ->
