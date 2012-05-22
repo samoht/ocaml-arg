@@ -1,5 +1,5 @@
 all:
-	ocamlbuild -I src argExt.cma argExt.cmxa
+	ocamlbuild -I src arg.cma arg.cmxa
 
 clean:
 	ocamlbuild -clean
