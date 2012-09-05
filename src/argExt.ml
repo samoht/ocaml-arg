@@ -82,17 +82,18 @@ let pp_print_cmds fmt () =
   );
   pp_print_newline fmt ()
 
-let pp_print_help hext fmt specs () =
-  pp_print_string fmt usage_msg;
-  pp_print_endblock fmt ();
-
-  pp_print_specs fmt specs;
-  pp_print_cmds fmt ();
-
+let pp_print_help ?man hext fmt specs () =
   match hext with
-    | NoSubCommand -> ()
-    | SubCommand name ->
-      pp_print_cmd fmt (SubCommand.find name)
+    | NoSubCommand ->
+      (pp_print_string fmt usage_msg;
+       pp_print_endblock fmt ();
+       
+       pp_print_specs fmt specs;
+       pp_print_cmds fmt ())
+    | SubCommand name -> (match man with
+        | None        -> pp_print_cmd fmt (SubCommand.find name)
+        | Some prefix -> 
+          ignore (Sys.command (Printf.sprintf "man %s-%s" prefix name)))
     | AllSubCommands ->
       SubCommand.fold
         ~init:()
@@ -147,7 +148,7 @@ module String = struct
     )
 end
 
-let parse specs =
+let parse ?man specs =
   let pos = ref 0 in
   let cmd = ref (SubCommand.make
     ~name:"none"
@@ -168,11 +169,11 @@ let parse specs =
         | fst :: _ -> fst
     in match exc with
       | Arg.Bad txt ->
-        pp_print_help hext err_formatter specs ();
+        pp_print_help ?man hext err_formatter specs ();
         prerr_endline (get_bad txt);
         exit 2
       | Arg.Help _txt ->
-        pp_print_help hext std_formatter specs ();
+        pp_print_help ?man hext std_formatter specs ();
         exit 0
       | _ ->
         raise exc
