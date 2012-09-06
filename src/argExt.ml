@@ -169,7 +169,7 @@ let parse ?man specs =
         | fst :: _ -> fst
     in match exc with
       | Arg.Bad txt ->
-        pp_print_help ?man hext err_formatter specs ();
+        pp_print_help hext err_formatter specs ();
         prerr_endline (get_bad txt);
         exit 2
       | Arg.Help _txt ->
@@ -179,7 +179,7 @@ let parse ?man specs =
         raise exc
   in
 
-  (* Parse global opions and set current subcommand. *)
+  (* Parse global options and set current subcommand. *)
   begin
     try
       Arg.parse_argv
