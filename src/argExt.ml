@@ -25,7 +25,7 @@ open SubCommand
 
 module List = ListLabels
 
-type help_extent = 
+type help_extent =
   | NoSubCommand
   | SubCommand of string
   | AllSubCommands
@@ -82,18 +82,16 @@ let pp_print_cmds fmt () =
   );
   pp_print_newline fmt ()
 
-let pp_print_help ?man hext fmt specs () =
+let pp_print_help ?man_fun hext fmt specs () =
   match hext with
     | NoSubCommand ->
       (pp_print_string fmt usage_msg;
        pp_print_endblock fmt ();
-       
        pp_print_specs fmt specs;
        pp_print_cmds fmt ())
-    | SubCommand name -> (match man with
-        | None        -> pp_print_cmd fmt (SubCommand.find name)
-        | Some prefix -> 
-          ignore (Sys.command (Printf.sprintf "man %s-%s" prefix name)))
+    | SubCommand name -> (match man_fun with
+        | None     -> pp_print_cmd fmt (SubCommand.find name)
+        | Some cmd -> cmd name)
     | AllSubCommands ->
       SubCommand.fold
         ~init:()
@@ -148,7 +146,7 @@ module String = struct
     )
 end
 
-let parse ?man specs =
+let parse ?man_fun specs =
   let pos = ref 0 in
   let cmd = ref (SubCommand.make
     ~name:"none"
@@ -173,7 +171,7 @@ let parse ?man specs =
         prerr_endline (get_bad txt);
         exit 2
       | Arg.Help _txt ->
-        pp_print_help ?man hext std_formatter specs ();
+        pp_print_help ?man_fun hext std_formatter specs ();
         exit 0
       | _ ->
         raise exc
