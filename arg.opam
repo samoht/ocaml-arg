@@ -1,0 +1,5 @@
+opam-version: "1"
+maintainer: "https://github.com/ocaml/opam-repository/issues"
+homepage: "https://github.com/samoht/ocaml-arg"
+build: [["jbuilder" "build" "-p" name "-j" jobs]]
+depends: ["jbuilder" {build & >= "1.0+beta20"}]

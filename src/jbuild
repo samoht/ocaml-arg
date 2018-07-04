@@ -1,0 +1,4 @@
+(library
+ ((name arg)
+  (public_name arg)
+  (wrapped false)))
