@@ -35,9 +35,9 @@ let pp_print_list pp_elem sep fmt = function
       tl
 
 let pp_print_justified size fmt s =
-  let tmp = String.make size ' ' in
+  let tmp = Bytes.make size ' ' in
   String.blit s 0 tmp 0 (String.length s);
-  pp_print_string fmt tmp
+  pp_print_string fmt (Bytes.unsafe_to_string tmp)
 
 let pp_print_underlined c fmt s =
   pp_print_string fmt s;
